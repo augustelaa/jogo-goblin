@@ -4,41 +4,50 @@ using UnityEngine;
 
 public class Movimento : MonoBehaviour
 {
-    CharacterController characterController;
+    CharacterController controller;
+    Animator anim;
 
     public float speed = 6.0f;
-    public float jumpSpeed = 8.0f;
+    public float jumpSpeed = 2.0f;
     public float gravity = 20.0f;
+    private Quaternion lookLeft;
+	private Quaternion lookRight;
 
     private Vector3 moveDirection = Vector3.zero;
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
+        anim = GetComponent<Animator>();
+        controller = GetComponent<CharacterController>();
+
+        lookRight = transform.rotation;
+		lookLeft = lookRight * Quaternion.Euler(0, 180, 0); 
     }
 
     void Update()
     {
-        if (characterController.isGrounded)
-        {
-            // We are grounded, so recalculate
-            // move direction directly from axes
+        //if (controller.isGrounded) {
 
-            moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, 0.0f);
-            moveDirection *= speed;
+            anim.SetBool ("andando", false);
 
-            if (Input.GetButton("Jump"))
-            {
-                moveDirection.y = jumpSpeed;
-            }
-        }
+			if (Input.GetButton("Jump"))
+				moveDirection.y = jumpSpeed;
 
-        // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
-        // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
-        // as an acceleration (ms^-2)
+			if (Input.GetKey(KeyCode.A)){
+
+				transform.rotation = lookLeft;
+			  anim.SetBool ("andando", true);
+
+			}
+
+			if (Input.GetKey(KeyCode.D)){
+				transform.rotation = lookRight;
+				anim.SetBool ("andando", true);
+			}
+			
+		//}
+		moveDirection.x = Input.GetAxis("Horizontal") * speed;
         moveDirection.y -= gravity * Time.deltaTime;
-
-        // Move the controller
-        characterController.Move(moveDirection * Time.deltaTime);
+		controller.Move(moveDirection * Time.deltaTime);
     }
 }
